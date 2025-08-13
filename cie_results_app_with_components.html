@@ -22,6 +22,14 @@ h1 { text-align: center; margin-bottom: 10px; }
 .component-table th { background-color: #f9f9f9; font-size: 14px; }
 .toggle-button { background: none; border: none; color: #007ACC; cursor: pointer; font-size: 14px; text-decoration: underline; }
 .hidden { display: none; }
+/* Summary table styling for grade distribution */
+.summary-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+.summary-table th, .summary-table td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+.summary-table th { background-color: #f0f0f0; }
+/* Summary table styling for grade distribution */
+.summary-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+.summary-table th, .summary-table td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+.summary-table th { background-color: #f0f0f0; }
 /* Tab navigation */
 #tabs { display: flex; justify-content: center; margin-top: 20px; }
 .tab-button { padding: 10px 20px; margin: 0 5px; border: none; background-color: #eee; cursor: pointer; border-radius: 4px; font-size: 16px; }
@@ -221,6 +229,53 @@ function showSubjectList() {
     table.appendChild(detailsRow);
   });
   container.appendChild(table);
+  // Compute grade distribution and top scorer for summary
+  const gradeCounts = {};
+  const gradeOrder = ['A*','A','B','C','D','E','F','U'];
+  entries.forEach(entry => {
+    const grade = (entry.grade || '').toUpperCase();
+    if (grade) {
+      gradeCounts[grade] = (gradeCounts[grade] || 0) + 1;
+    }
+  });
+  // Determine top scorer based on highest final grade and total raw marks
+  const gradeRank = { 'A*':7, 'A':6, 'B':5, 'C':4, 'D':3, 'E':2, 'F':1, 'U':0 };
+  let topCandidate = null;
+  entries.forEach(entry => {
+    const grade = (entry.grade || '').toUpperCase();
+    const rank = gradeRank[grade] ?? -1;
+    let totalMarks = 0;
+    const comps = entry.components || {};
+    Object.values(comps).forEach(comp => {
+      const val = parseFloat(comp.raw);
+      if (!isNaN(val)) {
+        totalMarks += val;
+      }
+    });
+    if (!topCandidate || rank > topCandidate.rank || (rank === topCandidate.rank && totalMarks > topCandidate.total)) {
+      topCandidate = { name: entry.name, candidateNo: entry.candidateNo, grade: grade, rank: rank, total: totalMarks };
+    }
+  });
+  // Create summary section
+  const summaryDiv = document.createElement('div');
+  summaryDiv.style.marginTop = '20px';
+  if (topCandidate) {
+    summaryDiv.innerHTML = `<p><strong>Top Scorer:</strong> ${topCandidate.name} (Candidate No: ${topCandidate.candidateNo}, Grade: ${topCandidate.grade})</p>`;
+  }
+  const summaryTable = document.createElement('table');
+  summaryTable.className = 'summary-table';
+  const headerRow = document.createElement('tr');
+  headerRow.innerHTML = '<th>Grade</th><th>Count</th>';
+  summaryTable.appendChild(headerRow);
+  gradeOrder.forEach(gr => {
+    const row = document.createElement('tr');
+    row.innerHTML = `<td>${gr}</td><td>${gradeCounts[gr] || 0}</td>`;
+    summaryTable.appendChild(row);
+  });
+  summaryDiv.appendChild(summaryTable);
+  container.appendChild(summaryDiv);
+
+
 }
 
 // Toggle visibility of subject details row in subject list view
