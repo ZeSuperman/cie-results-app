@@ -1,10 +1,38 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta http-equiv="refresh" content="0; url=cie_results_app_with_components.html">
-    <title>CIE Results App</title>
+  <meta charset="utf-8">
+  <title>Login - Results App</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 50px; text-align: center; background-color: #f8f8f8; }
+    .container { display: inline-block; padding: 20px; border-radius: 8px; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    input[type="password"] { padding: 8px; width: 200px; border: 1px solid #ccc; border-radius: 4px; margin-bottom: 10px; }
+    button { padding: 8px 15px; background: #007bff; border: none; border-radius: 4px; color: white; cursor: pointer; }
+    #message { color: red; margin-top: 10px; }
+  </style>
+  <script>
+    function checkPassword() {
+      var pass = document.getElementById('pwd').value;
+      if (pass === 'hankairesults2025') {
+        window.location.href = 'cie_results_app_with_components.html';
+      } else {
+        document.getElementById('message').textContent = 'Incorrect password. Try again.';
+      }
+    }
+    function handleKey(event) {
+      if (event.key === 'Enter') {
+        checkPassword();
+      }
+    }
+  </script>
 </head>
 <body>
-    <p>Redirecting to CIE Results App...</p>
+  <div class="container">
+    <h2>Enter Password</h2>
+    <input type="password" id="pwd" placeholder="Password" onkeypress="handleKey(event)">
+    <br>
+    <button onclick="checkPassword()">Submit</button>
+    <div id="message"></div>
+  </div>
 </body>
 </html>
