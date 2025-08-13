@@ -5,11 +5,33 @@
 <title>CIE AS & A Level Results - Component Details</title>
 <style>
 /* duplicate h1 style removed */
-body { font-family: Arial, sans-serif; padding: 20px; background-color: #f5f5f5; color: #333; }
+/* Define color variables inspired by Hankai Academy's website */
+:root {
+  --primary-color: #11a8e7; /* primary brand blue */
+  --secondary-color: #17678b; /* secondary accent blue */
+  --dark-color: #062a38; /* dark accent */
+  --light-bg: #f7faff; /* subtle light background */
+}
+
+/* Base layout styles */
+body {
+  font-family: 'Arial', sans-serif;
+  padding: 20px;
+  background-color: var(--light-bg);
+  color: #222;
+}
 h1 { text-align: center; margin-bottom: 10px; }
 #search-container { max-width: 600px; margin: 20px auto; display: flex; flex-wrap: wrap; gap: 10px; }
 #search-input { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; min-width: 0; }
-#search-button { padding: 10px 20px; background: #007ACC; border: none; color: white; border-radius: 4px; cursor: pointer; font-size: 16px; }
+#search-button {
+  padding: 10px 20px;
+  background: var(--primary-color);
+  border: none;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
 #results { margin-top: 20px; }
 .result-card { background: white; border: 1px solid #ddd; border-radius: 4px; padding: 15px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 .result-card h2 { margin-top: 0; font-size: 20px; margin-bottom:10px; }
@@ -20,7 +42,23 @@ h1 { text-align: center; margin-bottom: 10px; }
 .component-table { width: 100%; border-collapse: collapse; margin-top: 5px; }
 .component-table th, .component-table td { padding: 6px; border-bottom: 1px solid #eee; text-align: left; }
 .component-table th { background-color: #f9f9f9; font-size: 14px; }
-.toggle-button { background: none; border: none; color: #007ACC; cursor: pointer; font-size: 14px; text-decoration: underline; }
+.toggle-button {
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  cursor: pointer;
+  font-size: 14px;
+  text-decoration: underline;
+}
+
+/* Highlight interactive grade rows in the summary table */
+.grade-row td {
+  color: var(--primary-color);
+  text-decoration: underline;
+}
+.grade-row {
+  cursor: pointer;
+}
 .hidden { display: none; }
 /* Summary table styling for grade distribution */
 .summary-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
@@ -32,8 +70,20 @@ h1 { text-align: center; margin-bottom: 10px; }
 .summary-table th { background-color: #f0f0f0; }
 /* Tab navigation */
 #tabs { display: flex; justify-content: center; margin-top: 20px; }
-.tab-button { padding: 10px 20px; margin: 0 5px; border: none; background-color: #eee; cursor: pointer; border-radius: 4px; font-size: 16px; }
-.tab-button.active { background-color: #007ACC; color: #fff; }
+.tab-button {
+  padding: 10px 20px;
+  margin: 0 5px;
+  border: none;
+  background-color: #e0e0e0;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 16px;
+  color: #222;
+}
+.tab-button.active {
+  background-color: var(--primary-color);
+  color: #fff;
+}
 @media (max-width: 600px) {
   #search-container { flex-direction: column; }
   #search-button { width: 100%; }
@@ -275,7 +325,8 @@ function showSubjectList() {
   gradeOrder.forEach(gr => {
     // create grade row with toggle
     const row = document.createElement('tr');
-    row.style.cursor = 'pointer';
+    // assign a class for styling interactive grade rows
+    row.className = 'grade-row';
     row.setAttribute('onclick', `toggleGradeDetails('${gr}')`);
     row.innerHTML = `<td>${gr}</td><td>${gradeCounts[gr] || 0}</td>`;
     summaryTable.appendChild(row);
