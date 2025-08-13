@@ -229,13 +229,18 @@ function showSubjectList() {
     table.appendChild(detailsRow);
   });
   container.appendChild(table);
-  // Compute grade distribution and top scorer for summary
+  // Compute grade distribution and top scorer for summary and build grade-to-students mapping
   const gradeCounts = {};
+  const gradeStudents = {};
   const gradeOrder = ['A*','A','B','C','D','E','F','U'];
   entries.forEach(entry => {
     const grade = (entry.grade || '').toUpperCase();
     if (grade) {
       gradeCounts[grade] = (gradeCounts[grade] || 0) + 1;
+      if (!gradeStudents[grade]) {
+        gradeStudents[grade] = [];
+      }
+      gradeStudents[grade].push(entry);
     }
   });
   // Determine top scorer based on highest final grade and total raw marks
@@ -256,7 +261,7 @@ function showSubjectList() {
       topCandidate = { name: entry.name, candidateNo: entry.candidateNo, grade: grade, rank: rank, total: totalMarks };
     }
   });
-  // Create summary section
+  // Create summary section with interactive grade details
   const summaryDiv = document.createElement('div');
   summaryDiv.style.marginTop = '20px';
   if (topCandidate) {
@@ -268,9 +273,54 @@ function showSubjectList() {
   headerRow.innerHTML = '<th>Grade</th><th>Count</th>';
   summaryTable.appendChild(headerRow);
   gradeOrder.forEach(gr => {
+    // create grade row with toggle
     const row = document.createElement('tr');
+    row.style.cursor = 'pointer';
+    row.setAttribute('onclick', `toggleGradeDetails('${gr}')`);
     row.innerHTML = `<td>${gr}</td><td>${gradeCounts[gr] || 0}</td>`;
     summaryTable.appendChild(row);
+    // create hidden details row for this grade
+    const detailsRow = document.createElement('tr');
+    detailsRow.id = `grade-details-${gr}`;
+    detailsRow.className = 'hidden';
+    const detailsCell = document.createElement('td');
+    detailsCell.colSpan = 2;
+    if (gradeStudents[gr] && gradeStudents[gr].length > 0) {
+      const gradeTable = document.createElement('table');
+      gradeTable.className = 'subject-table';
+      const gHeader = document.createElement('tr');
+      gHeader.innerHTML = '<th>Candidate Name</th><th>Candidate No</th><th>Final Grade</th><th>Components</th>';
+      gradeTable.appendChild(gHeader);
+      gradeStudents[gr].forEach((student, sidx) => {
+        const sRow = document.createElement('tr');
+        const sDetailId = `grade-${gr}-student-${sidx}`;
+        sRow.innerHTML = `<td>${student.name}</td><td>${student.candidateNo}</td><td>${student.grade}</td><td><button class="toggle-button" onclick="toggleGradeStudentDetails('${sDetailId}')">Show details</button></td>`;
+        gradeTable.appendChild(sRow);
+        // component details row
+        const compRow = document.createElement('tr');
+        compRow.id = sDetailId;
+        compRow.className = 'hidden';
+        const compCell = document.createElement('td');
+        compCell.colSpan = 4;
+        const compTable = document.createElement('table');
+        compTable.className = 'component-table';
+        const compHeader = document.createElement('tr');
+        compHeader.innerHTML = '<th>Component</th><th>Raw Mark</th><th>Adjusted Mark</th><th>Grade</th>';
+        compTable.appendChild(compHeader);
+        const comps = student.components || {};
+        Object.entries(comps).forEach(([compCode, compVals]) => {
+          const compDataRow = document.createElement('tr');
+          compDataRow.innerHTML = `<td>${compCode}</td><td>${compVals.raw}</td><td>${compVals.adjusted}</td><td>${compVals.grade}</td>`;
+          compTable.appendChild(compDataRow);
+        });
+        compCell.appendChild(compTable);
+        compRow.appendChild(compCell);
+        gradeTable.appendChild(compRow);
+      });
+      detailsCell.appendChild(gradeTable);
+    }
+    detailsRow.appendChild(detailsCell);
+    summaryTable.appendChild(detailsRow);
   });
   summaryDiv.appendChild(summaryTable);
   container.appendChild(summaryDiv);
@@ -280,6 +330,28 @@ function showSubjectList() {
 
 // Toggle visibility of subject details row in subject list view
 function toggleSubjectDetails(id) {
+  const row = document.getElementById(id);
+  if (!row) return;
+  if (row.classList.contains('hidden')) {
+    row.classList.remove('hidden');
+  } else {
+    row.classList.add('hidden');
+  }
+}
+
+// Toggle visibility of grade summary details row
+function toggleGradeDetails(grade) {
+  const row = document.getElementById('grade-details-' + grade);
+  if (!row) return;
+  if (row.classList.contains('hidden')) {
+    row.classList.remove('hidden');
+  } else {
+    row.classList.add('hidden');
+  }
+}
+
+// Toggle visibility of individual student component details within grade summary
+function toggleGradeStudentDetails(id) {
   const row = document.getElementById(id);
   if (!row) return;
   if (row.classList.contains('hidden')) {
