@@ -175,7 +175,12 @@ function showSubjectList() {
   resultsData.forEach(item => {
     const data = item.subjects[subject];
     if (data) {
-      entries.push({ name: item['Candidate Name'], candidateNo: item['Cand. No'], grade: data.finalGrade || '' });
+      entries.push({
+        name: item['Candidate Name'],
+        candidateNo: item['Cand. No'],
+        grade: data.finalGrade || '',
+        components: data.components
+      });
     }
   });
   if (entries.length === 0) {
@@ -187,14 +192,46 @@ function showSubjectList() {
   const table = document.createElement('table');
   table.className = 'subject-table';
   const header = document.createElement('tr');
-  header.innerHTML = '<th>Candidate Name</th><th>Candidate No</th><th>Final Grade</th>';
+  header.innerHTML = '<th>Candidate Name</th><th>Candidate No</th><th>Final Grade</th><th>Components</th>';
   table.appendChild(header);
-  entries.forEach(entry => {
+  entries.forEach((entry, idx) => {
     const row = document.createElement('tr');
-    row.innerHTML = `<td>${entry.name}</td><td>${entry.candidateNo}</td><td>${entry.grade}</td>`;
+    const detailsId = `subject-details-${idx}`;
+    row.innerHTML = `<td>${entry.name}</td><td>${entry.candidateNo}</td><td>${entry.grade}</td><td><button class="toggle-button" onclick="toggleSubjectDetails('${detailsId}')">Show details</button></td>`;
     table.appendChild(row);
+    // details row for component scores
+    const detailsRow = document.createElement('tr');
+    detailsRow.id = detailsId;
+    detailsRow.className = 'hidden';
+    const td = document.createElement('td');
+    td.colSpan = 4;
+    const compTable = document.createElement('table');
+    compTable.className = 'component-table';
+    const compHeader = document.createElement('tr');
+    compHeader.innerHTML = '<th>Component</th><th>Raw Mark</th><th>Adjusted Mark</th><th>Grade</th>';
+    compTable.appendChild(compHeader);
+    const comps = entry.components || {};
+    Object.entries(comps).forEach(([compCode, compVals]) => {
+      const compRow = document.createElement('tr');
+      compRow.innerHTML = `<td>${compCode}</td><td>${compVals.raw}</td><td>${compVals.adjusted}</td><td>${compVals.grade}</td>`;
+      compTable.appendChild(compRow);
+    });
+    td.appendChild(compTable);
+    detailsRow.appendChild(td);
+    table.appendChild(detailsRow);
   });
   container.appendChild(table);
+}
+
+// Toggle visibility of subject details row in subject list view
+function toggleSubjectDetails(id) {
+  const row = document.getElementById(id);
+  if (!row) return;
+  if (row.classList.contains('hidden')) {
+    row.classList.remove('hidden');
+  } else {
+    row.classList.add('hidden');
+  }
 }
 </script>
 </body>
