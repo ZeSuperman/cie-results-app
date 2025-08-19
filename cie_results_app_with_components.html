@@ -106,10 +106,31 @@ h1 { text-align: center; margin-bottom: 10px; }
 #dataset-select .dataset-button:hover {
   background: var(--secondary-color);
 }
+
+/* Back button styles */
+.back-button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  padding: 8px 16px;
+  background-color: var(--primary-color);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  text-decoration: none;
+  z-index: 1000;
+}
+.back-button:hover {
+  background-color: var(--secondary-color);
+}
 </style>
 </head>
 <body>
 <h1 id="main-title">CIE Results - June 2025 (with Components)</h1>
+<!-- Back to main menu button; initially hidden -->
+<button id="back-button" class="back-button hidden" onclick="backToMenu()">Back to Main Menu</button>
 <!-- Dataset selection: choose which results to view -->
 <div id="dataset-select">
   <p>Please choose which results to view:</p>
@@ -244,6 +265,47 @@ function finalizeDatasetSelection() {
     comparisonChart.destroy();
     comparisonChart = null;
   }
+  // Show back to menu button once dataset is selected
+  const backBtn = document.getElementById('back-button');
+  if (backBtn) backBtn.classList.remove('hidden');
+}
+
+// Return to dataset selection
+function backToMenu() {
+  // Hide main app and show dataset selection
+  const mainApp = document.getElementById('main-app');
+  const dsSelect = document.getElementById('dataset-select');
+  if (mainApp) mainApp.classList.add('hidden');
+  if (dsSelect) dsSelect.classList.remove('hidden');
+  // Hide back button again
+  const backBtn = document.getElementById('back-button');
+  if (backBtn) backBtn.classList.add('hidden');
+  // Reset heading to generic title
+  const titleEl = document.getElementById('main-title');
+  if (titleEl) titleEl.innerText = 'CIE Results - June 2025 (with Components)';
+  // Reset UI: clear results and selections
+  const resDiv = document.getElementById('results');
+  if (resDiv) resDiv.innerHTML = '';
+  const searchInput = document.getElementById('search-input');
+  if (searchInput) searchInput.value = '';
+  const subjectSelect = document.getElementById('subject-select');
+  if (subjectSelect) subjectSelect.value = '';
+  const gradeSelect = document.getElementById('grade-select');
+  if (gradeSelect) gradeSelect.value = '';
+  const comp1 = document.getElementById('compare-subject1');
+  const comp2 = document.getElementById('compare-subject2');
+  if (comp1) comp1.value = '';
+  if (comp2) comp2.value = '';
+  const summaryDiv = document.getElementById('compare-summary');
+  if (summaryDiv) summaryDiv.innerHTML = '';
+  // Destroy existing chart if any
+  if (typeof comparisonChart !== 'undefined' && comparisonChart) {
+    comparisonChart.destroy();
+    comparisonChart = null;
+  }
+  // Reset current results data to null so user must select again
+  // Do not modify asResultsData or igcseResultsData; just rely on dataset selection
+  currentResultsData = asResultsData;
 }
 
 function populateSubjectDropdown() {
@@ -389,6 +451,15 @@ function switchTab(tab) {
     if (tabSearchBtn) tabSearchBtn.classList.remove('active');
     if (tabSubjectBtn) tabSubjectBtn.classList.remove('active');
     if (tabCompareBtn) tabCompareBtn.classList.remove('active');
+    // hide comparison view if switching from compare and reset chart/summary
+    const compareView = document.getElementById('compare-view');
+    if (compareView) compareView.classList.add('hidden');
+    const summaryDiv2 = document.getElementById('compare-summary');
+    if (summaryDiv2) summaryDiv2.innerHTML = '';
+    if (typeof comparisonChart !== 'undefined' && comparisonChart) {
+      comparisonChart.destroy();
+      comparisonChart = null;
+    }
     // trigger showing of grade filter list for currently selected grade
     showGradeFilterList();
   } else if (tab === 'compare') {
