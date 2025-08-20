@@ -214,7 +214,7 @@ function chooseDataset(type) {
   if (type === 'AS') {
     // Load AS & A Level dataset if not already loaded
     if (!asResultsData) {
-      fetch('as_results_with_final.json?v=' + Date.now())
+      fetch('as_results_with_final_names2.json?v=' + Date.now())
         .then(resp => resp.json())
         .then(data => {
           asResultsData = data;
@@ -236,7 +236,7 @@ function chooseDataset(type) {
   } else if (type === 'IGCSE') {
     // Load IGCSE dataset if not already loaded
     if (!igcseResultsData) {
-      fetch('igcse_results_with_final.json?v=' + Date.now())
+      fetch('igcse_results_with_final_names2.json?v=' + Date.now())
         .then(resp => resp.json())
         .then(data => {
           igcseResultsData = data;
